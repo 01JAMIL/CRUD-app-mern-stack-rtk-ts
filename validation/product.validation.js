@@ -2,7 +2,7 @@ const isEmpty = require('./isEmpty')
 const validator = require('validator')
 
 
-const validateProduct = (data) => {
+const validateProduct = (data, imageData) => {
 
     let errors = {}
 
@@ -20,6 +20,10 @@ const validateProduct = (data) => {
 
     if (parseFloat(data.price) <= 0) {
         errors.priceError = 'Product price must be bigger than 0'
+    }
+
+    if (imageData === undefined || imageData === null || !imageData) {
+        errors.imageError = 'Product image is required'
     }
 
     return {

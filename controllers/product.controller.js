@@ -29,13 +29,13 @@ const getProductById = asyncHandler(async (req, res) => {
 })
 
 const saveProduct = asyncHandler(async (req, res) => {
-    const { errors, valid } = validateProduct(req.body)
-
+    const { errors, valid } = validateProduct(req.body, req.files)
+    console.log(req.files)
     try {
         if (!valid) {
             return res.status(400).json(errors)
         }
-
+        console.log(req.body)
         const imageName = 'product' + Date.now() + '-' + req.files.image.name
         req.files.image.mv('./uploads/' + imageName)
         const newProduct = new Product(req.body)
@@ -99,6 +99,10 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 const deleteProduct = asyncHandler(async (req, res) => {
     try {
+        const product = await Product.findOne({ _id: req.params.id })
+        fs.unlinkSync('./uploads/' + product.image), err => {
+            if (err) throw err
+        }
         await Product.findOneAndDelete({ _id: req.params.id }).then(() => {
             res.status(200).json('Product deleted successfully')
         }).catch((err) => {

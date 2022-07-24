@@ -3,6 +3,8 @@ const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const fileUpload = require('express-fileupload')
 const app = express()
+const path = require('path')
+
 
 require('dotenv').config()
 require('./config/connectDb.config')
@@ -21,6 +23,9 @@ app.use(fileUpload({
 
 app.use('/api/product', productRouter)
 
+app.use('/uploads', express.static(
+    path.join(__dirname, '/uploads')
+))
 app.listen(process.env.PORT || 5001, (error) => {
     if (error) {
         console.log(error.message)
