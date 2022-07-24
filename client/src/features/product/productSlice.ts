@@ -28,6 +28,12 @@ export const saveProduct = createAsyncThunk('product/saveProduct', async (form: 
     })
 })
 
+export const deleteProduct = createAsyncThunk('product/deleteProduct', async (id: string) => {
+    return await axios.delete(`/api/product/${id}`).then(res => {
+        return res.data
+    })
+})
+
 const productSlice = createSlice({
     name: 'product',
     initialState,

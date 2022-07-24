@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { RootState } from '../app/store'
-import { fetchProducts } from '../features/product/productSlice'
+import { fetchProducts, deleteProduct } from '../features/product/productSlice'
 
 const HomePage = () => {
 
     const products = useAppSelector((state: RootState) => state.product)
+    const [productDeleted , setProductDeleted] = useState(false)
     const dispatch = useAppDispatch()
 
 
@@ -15,7 +16,16 @@ const HomePage = () => {
         }
 
         getProducts()
-    }, [])
+    }, [productDeleted])
+
+    const deleteProd = (id: string) => {
+        console.log(productDeleted)
+        if (window.confirm('Are you sure you want to delete this product ?')) {
+            dispatch(deleteProduct(id)).then(() => {
+                setProductDeleted(true)
+            })
+        }
+    }
 
     return (
         <div className='container'>
@@ -46,7 +56,7 @@ const HomePage = () => {
                                                     <td> <img src={`../../../uploads/${product.image}`} alt="img" style={{ width: '120px' }} /> </td>
                                                     <td>
                                                         <button className='btn'><i className="fa-solid fa-gear"></i></button>
-                                                        <button className='btn'><i className="fa-solid fa-trash-can"></i></button>
+                                                        <button className='btn' onClick={() => deleteProd(product._id)}><i className="fa-solid fa-trash-can"></i></button>
                                                     </td>
                                                 </tr>
                                             ))}

@@ -2,11 +2,12 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { saveProduct } from '../features/product/productSlice'
+import { RootState } from '../app/store'
 
 
 const NewProduct = () => {
 
-    const state = useAppSelector(state => state.product)
+    const state = useAppSelector((state: RootState) => state.product)
 
     const [form, setForm] = useState(new FormData())
     const dispatch = useAppDispatch()
@@ -28,10 +29,9 @@ const NewProduct = () => {
 
     const submitHandler = (e: any) => {
         e.preventDefault()
-        dispatch(saveProduct(form))
-        if (!state.error) {
+        dispatch(saveProduct(form)).then(() => {
             navigate('/', { replace: true })
-        }
+        })
     }
 
     return (
