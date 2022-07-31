@@ -18,7 +18,7 @@ const getProducts = asyncHandler(async (req, res) => {
 
 const getProductById = asyncHandler(async (req, res) => {
     try {
-        const product = await Product.findOne({ _id: req.params.id }).then(() => {
+        await Product.findOne({ _id: req.params.id }).then((product) => {
             res.status(200).json(product)
         }).catch((err) => {
             res.status(400).json(err.message)
@@ -29,7 +29,7 @@ const getProductById = asyncHandler(async (req, res) => {
 })
 
 const saveProduct = asyncHandler(async (req, res) => {
-    const { errors, valid } = validateProduct(req.body, req.files)
+    const { errors, valid } = validateProduct(req.body, req.files, true)
     console.log(req.files)
     try {
         if (!valid) {
@@ -55,7 +55,7 @@ const saveProduct = asyncHandler(async (req, res) => {
 
 
 const updateProduct = asyncHandler(async (req, res) => {
-    const { errors, valid } = validateProduct(req.body)
+    const { errors, valid } = validateProduct(req.body, req.files, false)
 
     try {
         if (!valid) {
@@ -67,9 +67,9 @@ const updateProduct = asyncHandler(async (req, res) => {
             price: req.body.price
         }
 
-        if (req.files.image) {
-            const product = await Product.findOne({ _id: req.params.id })
+        const product = await Product.findOne({ _id: req.params.id })
 
+        if (req.files && req.files.image.name !== product.image) {
             fs.unlinkSync('./uploads/' + product.image), err => {
                 if (err) throw err
             }

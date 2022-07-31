@@ -1,17 +1,27 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
-import { saveProduct } from '../features/product/productSlice'
 import { RootState } from '../app/store'
+import { getProductById, updateProduct } from '../features/product/productSlice'
 
-
-const NewProduct = () => {
+const UpdateProduct = () => {
 
     const state = useAppSelector((state: RootState) => state.product)
-
-    const [form, setForm] = useState(new FormData())
+    const [form, setForm] = useState({
+        name: '',
+        price: ''
+    })
+    const [productImage, setProductImage] = useState('')
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const { id } = useParams()
+
+    useEffect(() => {
+        dispatch(getProductById(id)).then(res => {
+            setForm(res.payload)
+            setProductImage(res.payload.image)
+        })
+    }, [])
 
     const changeHandler = (e: any) => {
         setForm({
@@ -29,14 +39,25 @@ const NewProduct = () => {
 
     const submitHandler = (e: any) => {
         e.preventDefault()
-        dispatch(saveProduct({form, navigate}))
+
+        const obj = {
+            navigate,
+            form,
+            id
+        }
+
+        dispatch(updateProduct(obj))
+
     }
 
     return (
         <div className="new-product-container">
             <div>
-                <h3>New product</h3>
-                <form onSubmit={submitHandler}>
+                <h3>Update product</h3>
+                <form onSubmit={submitHandler} id="formEles">
+                    {productImage !== '' && <div style={{ display: 'flex', justifyContent: 'center' }} >
+                        <img src={`../../../uploads/${productImage}`} style={{ width: '120px' }} alt="image" />
+                    </div>}
                     <div className="form-group">
                         <label htmlFor="name">Name</label>
                         <input
@@ -44,6 +65,7 @@ const NewProduct = () => {
                             id="name"
                             name="name"
                             className={`text-input ${state.error.nameError && 'invalid'}`}
+                            value={form.name}
                             onChange={changeHandler}
 
                         />
@@ -60,6 +82,7 @@ const NewProduct = () => {
                             id="price"
                             name="price"
                             className={`text-input ${state.error.priceError && 'invalid'}`}
+                            value={form.price}
                             onChange={changeHandler}
                         />
                         {state.error.priceError &&
@@ -84,7 +107,7 @@ const NewProduct = () => {
                         }
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
-                        <button type="submit" className="btn">Save</button>
+                        <button type="submit" className="btn">Update</button>
                     </div>
                 </form>
             </div>
@@ -92,4 +115,4 @@ const NewProduct = () => {
     )
 }
 
-export default NewProduct
+export default UpdateProduct

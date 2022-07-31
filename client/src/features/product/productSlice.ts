@@ -16,12 +16,34 @@ export const fetchProducts = createAsyncThunk('product/fetchProducts', async () 
         })
 })
 
-export const saveProduct = createAsyncThunk('product/saveProduct', async (form: FormData, { rejectWithValue }) => {
+export const getProductById = createAsyncThunk('product/getProductById', async (id: string) => {
+    return await axios.get(`/api/product/${id}`).then(res => {
+        return res.data
+    })
+})
+
+export const saveProduct = createAsyncThunk('product/saveProduct', async (data: any, { rejectWithValue }) => {
+    const { form, navigate } = data
     return await axios.post('/api/product/', form, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     }).then(res => {
+        navigate('/', { replace: true })
+        return res.data
+    }).catch(err => {
+        return rejectWithValue(err.response.data)
+    })
+})
+
+export const updateProduct = createAsyncThunk('product/updateProduct', async (data: any, { rejectWithValue }) => {
+    const { navigate, form, id } = data
+    return await axios.put(`/api/product/${id}`, form, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then(res => {
+        navigate('/', { replace: true })
         return res.data
     }).catch(err => {
         return rejectWithValue(err.response.data)
@@ -62,11 +84,41 @@ const productSlice = createSlice({
 
         builder.addCase(saveProduct.fulfilled, (state, action: PayloadAction<Product>) => {
             state.loading = false
-            state.products.push(action.payload)
+            state.products = [...state.products, action.payload]
             state.error = ''
         })
 
         builder.addCase(saveProduct.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+        })
+
+        builder.addCase(updateProduct.pending, state => {
+            state.loading = true
+        })
+
+        builder.addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
+            state.loading = false
+            const index = state.products.findIndex(p => p._id === action.payload._id)
+            state.products[index] = action.payload
+            state.error = ''
+        })
+
+
+        builder.addCase(updateProduct.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.payload
+        })
+
+        builder.addCase(deleteProduct.pending, state => {
+            state.loading = true
+        })
+
+        builder.addCase(deleteProduct.fulfilled, (state, action) => {
+            state.loading = false
+        })
+
+        builder.addCase(deleteProduct.rejected, (state, action) => {
             state.loading = false
             state.error = action.payload
         })

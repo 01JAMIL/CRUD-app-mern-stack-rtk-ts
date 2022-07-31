@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../app/hooks'
 import { RootState } from '../app/store'
 import { fetchProducts, deleteProduct } from '../features/product/productSlice'
@@ -6,7 +7,7 @@ import { fetchProducts, deleteProduct } from '../features/product/productSlice'
 const HomePage = () => {
 
     const products = useAppSelector((state: RootState) => state.product)
-    const [productDeleted , setProductDeleted] = useState(false)
+    const [productDeleted, setProductDeleted] = useState(false)
     const dispatch = useAppDispatch()
 
 
@@ -19,7 +20,6 @@ const HomePage = () => {
     }, [productDeleted])
 
     const deleteProd = (id: string) => {
-        console.log(productDeleted)
         if (window.confirm('Are you sure you want to delete this product ?')) {
             dispatch(deleteProduct(id)).then(() => {
                 setProductDeleted(true)
@@ -53,9 +53,11 @@ const HomePage = () => {
                                                 <tr key={index}>
                                                     <td> {product.name} </td>
                                                     <td> {product.price + ' DT'} </td>
-                                                    <td> <img src={`../../../uploads/${product.image}`} alt="img" style={{ width: '120px' }} /> </td>
+                                                    <td> {product.image !== undefined && <img src={`../../../uploads/${product.image}`} alt="img" style={{ width: '120px' }} />} </td>
                                                     <td>
-                                                        <button className='btn'><i className="fa-solid fa-gear"></i></button>
+                                                        <Link to={`/update-product/${product._id}`}>
+                                                            <button className='btn'><i className="fa-solid fa-gear"></i></button>
+                                                        </Link>
                                                         <button className='btn' onClick={() => deleteProd(product._id)}><i className="fa-solid fa-trash-can"></i></button>
                                                     </td>
                                                 </tr>
